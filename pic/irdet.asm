@@ -1,0 +1,371 @@
+; $Id$
+
+;**********************************************************************
+;                                                                     *
+;    Description:   'IrDetector' Microchip PIC assembler model        *
+;                   railway Infra-Red train detector.                 *
+;                                                                     *
+;    Author:        Chris White (whitecf@bcs.org.uk)                  *
+;    Company:       Monitor Computing Services Ltd.                   *
+;                                                                     *
+;**********************************************************************
+;                                                                     *
+;    Copyright (c)  2004 Monitor Computing Services Ltd               *
+;    Unpublished and not for publication                              *
+;    All rights reserved                                              *
+;                                                                     *
+;**********************************************************************
+;                                                                     *
+;    Notes: High frequency pulsed Infra-Red reflective train detector *
+;           utilising PIC monitor interface via full duplex serial    *
+;           @ 4K8 baud, 1 start bit, 8 data bits, no parity,          *
+;             1 stop bit                                              *
+;                                                                     *
+;           'Up' interface, asynchronous serial @ 4K8 baud            *
+;           Port B 0 - Rx, 1 - Tx                                     *
+;                                                                     *
+;**********************************************************************
+
+
+;**********************************************************************
+; Include and configuration directives                                *
+;**********************************************************************
+
+    list      p=16F84
+
+#include <p16F84.inc>
+
+    __CONFIG   _CP_OFF & _WDT_OFF & _PWRTE_ON & _XT_OSC
+
+; '__CONFIG' directive is used to embed configuration data within .asm file.
+; The lables following the directive are located in the respective .inc file.
+; See respective data sheet for additional information on configuration word.
+
+; Include serial interface macros
+#include <\dev\projects\utility\pic\asyn_srl.inc>
+
+
+;**********************************************************************
+; Constant definitions                                                *
+;**********************************************************************
+
+; I/O port direction it masks
+PORTASTATUS EQU     B'00000000'
+PORTBSTATUS EQU     B'00000001'
+
+; Interrupt & timing constants
+RTCCINT     EQU     158         ; 10KHz = (1MHz / 100) - RTCC write inhibit (2)
+
+; Bit timing for 4K8 (actually 5K) baud
+INT5KBIT    EQU     2           ; Interrupts per serial bit
+INT5KINI    EQU     3           ; Interrupts per initial Rx serial bit
+
+; Monitor interface constants
+RXMFLAG     EQU     0           ; Receive byte buffer 'loaded' status bit
+RXMERR      EQU     1           ; Receive error status bit
+RXMBREAK    EQU     2           ; Received 'break' status bit
+TXMFLAG     EQU     3           ; Transmit byte buffer 'clear' status bit
+TXMTRIS     EQU     TRISA       ; Tx port direction register
+TXMPORT     EQU     PORTA       ; Tx port data register
+TXMBIT      EQU     1           ; Tx output bit
+RXMTRIS     EQU     TRISA       ; Rx port direction register
+RXMPORT     EQU     PORTA       ; Rx port data register
+RXMBIT      EQU     0           ; Rx input bit
+
+
+;**********************************************************************
+; Variable register ns                                                *
+;**********************************************************************
+
+            CBLOCK  0x0C
+
+; Status and accumulator storage during interrupt
+w_isr           ; 'w' register, accumulator, store during ISR
+pclath_isr      ; PCLATH register store during ISR
+status_isr      ; status register store during ISR
+
+; Serial interface
+srlIfStat       ; Serial I/F status flags
+
+; Monitor interface
+serMRxTmr       ; Interrupt counter for serial bit timing
+serMRxReg       ; Data shift register
+serMRxByt       ; Data byte buffer
+serMRxBitCnt    ; Bit down counter
+serMTxTmr       ; Interrupt counter for serial bit timing
+serMTxReg       ; Data shift register
+serMTxByt       ; Data byte buffer
+serMTxBitCnt    ; Bit down counter
+
+            ENDC
+
+
+;**********************************************************************
+; EEPROM initialisation                                               *
+;**********************************************************************
+
+            ORG     0x2100  ; EEPROM data area
+
+; None
+
+
+;**********************************************************************
+; Reset vector                                                        *
+;**********************************************************************
+
+            ORG     0x000   ; Processor reset vector
+
+BootVector
+    clrf    INTCON          ; Disable interrupts
+    clrf    INTCON          ; Ensure interrupts are disabled
+    goto    Boot            ; Jump to beginning of program
+
+
+;**********************************************************************
+; Interrupt vector                                                    *
+;**********************************************************************
+
+            ORG     0x004   ; Interrupt vector location
+
+IntVector
+    movwf   w_isr           ; Save off current W register contents
+    swapf   STATUS,W        ; Swap status register into W register
+    BANKSEL TMR0            ; Ensure register page 0 is selected
+    movwf   status_isr      ; save off contents of STATUS register
+    movf    PCLATH,W        ; Move PCLATH register into W register
+    movwf   pclath_isr      ; save off contents of PCLATH register
+    movlw   high BeginISR   ; Load ISR address high byte ...
+    movwf   PCLATH          ; ... into PCLATH to set code block
+    goto    BeginISR        ; Jump to interrupt service routine
+
+
+;**********************************************************************
+; Instance Monitor interface routine macros                           *
+;**********************************************************************
+
+EnableMRx   EnableRx  RXMTRIS, RXMPORT, RXMBIT
+    return
+
+
+InitMRx     InitRx  serMRxTmr, srlIfStat, RXMFLAG, RXMERR, RXMBREAK
+    return
+
+
+SrvcMRx     ServiceRx serMRxTmr, RXMPORT, RXMBIT, serMRxBitCnt, INT5KINI, srlIfStat, RXMERR, RXMBREAK, serMRxReg, serMRxByt, RXMFLAG, INT5KBIT
+
+
+EnableMTx   EnableTx  TXMTRIS, TXMPORT, TXMBIT
+    return
+
+
+InitMTx     InitTx  serMTxTmr, srlIfStat, TXMFLAG
+    return
+
+
+SrvcMTx     ServiceTx serMTxTmr, srlIfStat, serMTxByt, serMTxReg, TXMFLAG, serMTxBitCnt, INT5KBIT, TXMPORT, TXMBIT, 0, 0
+
+
+LinkMRx
+SerMRx      SerialRx srlIfStat, RXMFLAG, serMRxByt
+
+
+LinkMTx
+SerMTx      SerialTx srlIfStat, TXMFLAG, serMTxByt
+
+
+;**********************************************************************
+; Configure and include Monitor macros                                *
+;**********************************************************************
+
+; Set defines to configure Monitor macros
+#define GOTUSERBANNER   ; Display 'user' banner
+#define MONUSERON       ; Run user code immediately when booted
+
+; Include Monitor macros
+#include <\dev\projects\utility\pic\monitor.inc>
+
+
+;**********************************************************************
+; Main program initialisation code                                    *
+;**********************************************************************
+
+Boot
+    ; Clear I/O ports
+    clrf    PORTA
+    clrf    PORTB
+
+    BANKSEL OPTION_REG
+
+    ; Initialise I/O port bit directions
+    movlw   PORTASTATUS
+    movwf   TRISA
+    movlw   PORTBSTATUS
+    movwf   TRISB
+
+    ; Set option register:
+    ;   Port B pull-up       - off
+    ;   Prescaler assignment - watchdog timer
+    clrf    OPTION_REG
+    bsf     OPTION_REG,NOT_RBPU
+    bsf     OPTION_REG,PSA
+
+    BANKSEL TMR0
+
+    movlw   PORTASTATUS     ; For Port A need to write one to each bit ...
+    movwf   PORTA           ; ... being used for input
+
+    ; Initialise Monitor terminal serial link
+    SerInit    srlIfStat, serMTxTmr, serMTxReg, serMTxByt, serMTxBitCnt, serMRxTmr, serMRxReg, serMRxByt, serMRxBitCnt
+
+    call    EnableMRx       ; Enable receive from Monitor terminal
+    call    InitMRx         ; Initialise receiver for Monitor terminal
+    call    EnableMTx       ; Enable transmit to Monitor terminal
+    call    InitMTx         ; Initialise transmitter to Monitor terminal
+
+    call    UserInit        ; Run user initialisation code
+
+    ; Initialise interrupts
+    movlw   RTCCINT
+    movwf   TMR0            ; Initialise RTCC for timer interrupts
+    clrf    INTCON          ; Disable all interrupt sources
+    bsf     INTCON,T0IE     ; Enable RTCC interrupts
+    bsf     INTCON,GIE      ; Enable interrupts
+
+
+    goto    MonitorMain     ; Run Monitor program
+
+
+;**********************************************************************
+; Interrupt service routine (ISR) code                                *
+;**********************************************************************
+
+BeginISR
+    btfss   INTCON,T0IF     ; Test for RTCC Interrupt
+    retfie                  ; If not, skip service routine
+
+    ; Re-enable the timer interrupt and reload the timer
+    bcf     INTCON,T0IF     ; Reset the RTCC Interrupt bit
+    movlw   RTCCINT
+    addwf   TMR0,F          ; Reload RTCC
+
+    call    SrvcMRx         ; Perform Monitor interface Rx service
+    call    SrvcMTx         ; Perform Monitor interface Tx service
+
+    ; Instance the Monitor interrupt service macro
+    MonitorISR
+
+EndISR
+    movf    pclath_isr,W    ; Retrieve copy of PCLATH register
+    movwf   PCLATH          ; Restore pre-isr PCLATH register contents
+    swapf   status_isr,W    ; Swap copy of STATUS register into W register
+    movwf   STATUS          ; Restore pre-isr STATUS register contents
+    swapf   w_isr,F         ; Swap pre-isr W register value nibbles
+    swapf   w_isr,W         ; Swap pre-isr W register into W register
+
+    retfie                  ; return from Interrupt
+
+
+;**********************************************************************
+; User constants                                                      *
+;**********************************************************************
+
+; Detector I/O constants
+DETPORT         EQU     PORTA       ; Port
+DETDRIVE        EQU     2           ; Emmitter drive output bit
+DETIN           EQU     3           ; Sensor input bit
+
+
+;**********************************************************************
+; User variables                                                      *
+;**********************************************************************
+
+            CBLOCK
+
+; None
+
+            ENDC
+
+
+;**********************************************************************
+; User banner display code                                            *
+;**********************************************************************
+
+UserBanner
+    movlw   crCode
+    call    TxLoop
+    movlw   lfCode
+    call    TxLoop
+    movlw   'I'
+    call    TxLoop
+    movlw   'R'
+    call    TxLoop
+    movlw   ' '
+    call    TxLoop
+    movlw   'D'
+    call    TxLoop
+    movlw   'e'
+    call    TxLoop
+    movlw   't'
+    call    TxLoop
+    movlw   'e'
+    call    TxLoop
+    movlw   'c'
+    call    TxLoop
+    movlw   't'
+    call    TxLoop
+    movlw   'o'
+    call    TxLoop
+    movlw   'r'
+    call    TxLoop
+    movlw   ' ' 
+    call    TxLoop
+    movlw   '1'
+    call    TxLoop
+    movlw   'a'
+    call    TxLoop
+    movlw   crCode
+    call    TxLoop
+    movlw   lfCode
+
+TxLoop
+    movwf   FSR             ; Copy W to FSR, for sending
+LoopTx
+    call    LinkMTx         ; Try to send data
+    btfss   STATUS,Z        ; Skip if data sent ...
+    goto    LoopTx          ; ... otherwise keep trying to send
+
+    return
+
+
+;**********************************************************************
+; User initialisation code                                            *
+;**********************************************************************
+
+UserInit
+
+    return
+
+
+;**********************************************************************
+; User interrupt service routine (ISR) code                           *
+;**********************************************************************
+
+UserInt
+
+    return
+
+
+;**********************************************************************
+; User main loop code                                                 *
+;**********************************************************************
+
+UserMain    ; Top of main processing loop
+
+    return  ; End of main processing loop
+
+
+;**********************************************************************
+; End of source code
+;**********************************************************************
+
+    end     ; directive 'end of program'
