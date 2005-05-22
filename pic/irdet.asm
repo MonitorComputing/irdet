@@ -10,7 +10,7 @@
 ;                                                                     *
 ;**********************************************************************
 ;                                                                     *
-;    Copyright (c)  2004 Monitor Computing Services Ltd               *
+;    Copyright (c)  20054 Monitor Computing Services Ltd               *
 ;    Unpublished and not for publication                              *
 ;    All rights reserved                                              *
 ;                                                                     *
@@ -31,9 +31,9 @@
 ; Include and configuration directives                                *
 ;**********************************************************************
 
-    list      p=16F84
+    list      p=16C84
 
-#include <p16F84.inc>
+#include <p16C84.inc>
 
     __CONFIG   _CP_OFF & _WDT_OFF & _PWRTE_ON & _XT_OSC
 
@@ -50,7 +50,7 @@
 ;**********************************************************************
 
 ; I/O port direction it masks
-PORTASTATUS EQU     B'00000000'
+PORTASTATUS EQU     B'00001000'
 PORTBSTATUS EQU     B'00000001'
 
 ; Interrupt & timing constants
@@ -65,11 +65,11 @@ RXMFLAG     EQU     0           ; Receive byte buffer 'loaded' status bit
 RXMERR      EQU     1           ; Receive error status bit
 RXMBREAK    EQU     2           ; Received 'break' status bit
 TXMFLAG     EQU     3           ; Transmit byte buffer 'clear' status bit
-TXMTRIS     EQU     TRISA       ; Tx port direction register
-TXMPORT     EQU     PORTA       ; Tx port data register
+TXMTRIS     EQU     TRISB       ; Tx port direction register
+TXMPORT     EQU     PORTB       ; Tx port data register
 TXMBIT      EQU     1           ; Tx output bit
-RXMTRIS     EQU     TRISA       ; Rx port direction register
-RXMPORT     EQU     PORTA       ; Rx port data register
+RXMTRIS     EQU     TRISB       ; Rx port direction register
+RXMPORT     EQU     PORTB       ; Rx port data register
 RXMBIT      EQU     0           ; Rx input bit
 
 
@@ -269,10 +269,17 @@ EndISR
 ; User constants                                                      *
 ;**********************************************************************
 
-; Detector I/O constants
-DETPORT         EQU     PORTA       ; Port
-DETDRIVE        EQU     2           ; Emmitter drive output bit
-DETIN           EQU     3           ; Sensor input bit
+; I/O constants
+EMITTERPORT     EQU     PORTA       ; Emitter drive port
+EMITTERBIT      EQU     2           ; Emmitter drive bit (active low)
+SENSORPORT      EQU     PORTA       ; Sensor input port
+SENSORBIT       EQU     3           ; Sensor input bit
+INDICATORPORT   EQU     PORTA       ; Detection indicator port
+INDICATORBIT    EQU     4           ; Detection indicator bit (active low)
+
+; Detection correspondance 'high water' and 'low water' thresholds
+DETHIGHWTR      EQU     200         ; Detection "On" threshold
+DETLOWWTR       EQU     55          ; Detection "Off" threshold
 
 
 ;**********************************************************************
@@ -281,7 +288,7 @@ DETIN           EQU     3           ; Sensor input bit
 
             CBLOCK
 
-; None
+detAcc          ; Detection correspondance accumulator
 
             ENDC
 
@@ -343,6 +350,11 @@ LoopTx
 
 UserInit
 
+    clrf    detAcc          ; Clear detection correspondance accumulator
+
+    bsf     EMITTERPORT,EMITTERBIT      ; Ensure emmitter is off
+    bsf     INDICATORPORT,INDICATORBIT  ; Ensure detection indicator is off
+
     return
 
 
@@ -352,6 +364,51 @@ UserInit
 
 UserInt
 
+    btfsc   EMITTERPORT,EMITTERBIT  ; Test current state of emitter ...
+    goto    EmitterIsOff            ; ... jump if off, else ...
+
+EmitterIsOn
+    ; Test if sensor is on (in correspondance), then turn emitter off
+
+    btfss   SENSORPORT,SENSORBIT    ; Test current state of sensor ...
+    goto    SensorNotOn             ; ... jump if off, else ...
+
+SensorIsOn
+
+    incfsz  detAcc,W        ; Increment detection correspondance accumulator
+    movwf   detAcc          ; If result is not zero update the accumulator
+    goto    TurnOffEmitter
+
+SensorNotOn
+
+    decfsz  detAcc,W        ; Decrement detection correspondance accumulator
+    movwf   detAcc          ; If result is not zero update the accumulator
+
+TurnOffEmitter
+
+    bsf     EMITTERPORT,EMITTERBIT  ; Turn emitter off
+    return
+
+EmitterIsOff
+    ; Test if sensor is off (in correspondance), then turn emitter on
+
+    btfsc   SENSORPORT,SENSORBIT    ; Test current state of sensor ...
+    goto    SensorNotOff            ; ... jump if on, else ...
+
+SensorIsOff
+
+    incfsz  detAcc,W        ; Increment detection correspondance accumulator
+    movwf   detAcc          ; If result is not zero update the accumulator
+    goto    TurnOnEmitter
+
+SensorNotOff
+
+    decfsz  detAcc,W        ; Decrement detection correspondance accumulator
+    movwf   detAcc          ; If result is not zero update the accumulator
+
+TurnOnEmitter
+
+    bcf     EMITTERPORT,EMITTERBIT  ; Turn emitter on
     return
 
 
@@ -360,6 +417,33 @@ UserInt
 ;**********************************************************************
 
 UserMain    ; Top of main processing loop
+
+    ; Check status of detection indicator
+
+    btfss   INDICATORPORT,INDICATORBIT  ; Test state of detection indicator ...
+    goto    IndicatorIsOff              ; ... jump if off, else ...
+
+    ; Detection indicator is currently on
+    movf    detAcc,W        ; Test if detection correspondance accumulator ...
+    sublw   DETLOWWTR       ; ... is above "Off" threshold
+    btfss   STATUS,C        ; Skip if at or below threshold ...
+    goto    EndDetection    ; ... else do nothing
+
+    ; Detection correspondance has fallen to or below threshold
+    bsf     INDICATORPORT,INDICATORBIT  ; Turn detection indicator off
+    goto    EndDetection
+
+IndicatorIsOff
+    ; Detection indicator is currently off
+    movf    detAcc,W        ; Test if detection correspondance accumulator ...
+    sublw   DETHIGHWTR      ; ... is above "On" threshold
+    btfsc   STATUS,C        ; Skip if above threshold ...
+    goto    EndDetection    ; ... else do nothing
+
+    ; Detection correspondance has risen above threshold
+    bcf     INDICATORPORT,INDICATORBIT  ; Turn detection indicator on
+
+EndDetection
 
     return  ; End of main processing loop
 

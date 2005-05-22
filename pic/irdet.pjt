@@ -1,7 +1,7 @@
 [PROJECT]
 Target=IRDET.HEX
 Development_Mode=2
-Processor=0x684a
+Processor=0x6c84
 ToolSuite=Microchip
 
 [Directories]
@@ -19,7 +19,7 @@ BuildRequired=0
 [IRDET.ASM]
 Type=4
 Path=
-FileList=P16F84.INC;ASYN_SRL.INC;MONITOR.INC;
+FileList=P16C84.INC;ASYN_SRL.INC;MONITOR.INC;
 BuildTool=
 OptionString=
 AdditionalOptionString=
@@ -117,6 +117,6 @@ BuildTool=
 OptionString=
 AdditionalOptionString=
 
-[Windows]
-0=0000  0 0 945 174 9 0
+[mru-list]
+1=/home/chris/dev\projects\irdet\pic\irdet.asm
 
