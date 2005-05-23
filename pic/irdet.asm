@@ -1,4 +1,5 @@
-; $RCSfile$ $Revision$ $Date$
+; $RCSfile$ $Revisiion: 1.1.1.3 $
+; $Date$
 
 ;**********************************************************************
 ;                                                                     *
@@ -46,6 +47,11 @@
 
 
 ;**********************************************************************
+;**************************** System code *****************************
+;**********************************************************************
+
+
+;**********************************************************************
 ; Constant definitions                                                *
 ;**********************************************************************
 
@@ -74,7 +80,7 @@ RXMBIT      EQU     0           ; Rx input bit
 
 
 ;**********************************************************************
-; Variable register ns                                                *
+; Variable registers                                                  *
 ;**********************************************************************
 
             CBLOCK  0x0C
@@ -266,6 +272,11 @@ EndISR
 
 
 ;**********************************************************************
+;***************************** User code ******************************
+;**********************************************************************
+
+
+;**********************************************************************
 ; User constants                                                      *
 ;**********************************************************************
 
@@ -281,6 +292,11 @@ INDICATORBIT    EQU     4           ; Detection indicator bit (active low)
 DETHIGHWTR      EQU     200         ; Detection "On" threshold
 DETLOWWTR       EQU     55          ; Detection "Off" threshold
 
+; Sensor transition determination values
+SENSORMASK      EQU     B'00000011' ; Mask to isolate transition bits
+SENSORH2L       EQU     B'00000010' ; Transition from high (on) to low (off)
+SENSORL2H       EQU     B'00000001' ; Transition from low (off) to high (on)
+
 
 ;**********************************************************************
 ; User variables                                                      *
@@ -289,6 +305,7 @@ DETLOWWTR       EQU     55          ; Detection "Off" threshold
             CBLOCK
 
 detAcc          ; Detection correspondance accumulator
+sensorStore     ; Store sensor values to determine on/off transitions
 
             ENDC
 
@@ -364,51 +381,64 @@ UserInit
 
 UserInt
 
+    ; Add the current state of the sensor to the stored previous states
+    bcf     STATUS,C                ; Clear the carry flag
+    btfsc   SENSORPORT,SENSORBIT    ; Test if sensor is off ...
+    bsf     STATUS,C                ; ... else set the carry flag
+    rlf     sensorStore,F           ; Rotate the sensor state into the store
+
+    ; Test if the emitter is on or off, toggle the emitter state, then
+    ; check the sensor for a corresponding transition.
+
     btfsc   EMITTERPORT,EMITTERBIT  ; Test current state of emitter ...
     goto    EmitterIsOff            ; ... jump if off, else ...
 
 EmitterIsOn
-    ; Test if sensor is on (in correspondance), then turn emitter off
+    ; Toggle the present emitter state
+    bsf     EMITTERPORT,EMITTERBIT  ; Turn emitter off
 
-    btfss   SENSORPORT,SENSORBIT    ; Test current state of sensor ...
-    goto    SensorNotOn             ; ... jump if off, else ...
+    ; Test for sensor transition from off to on,
+    ; indicating presence of a reflective target
 
-SensorIsOn
+    movf    sensorStore,W   ; Get the stored sensor states
+    andlw   SENSORMASK      ; Isolate the two most recent states
+    xorlw   SENSORL2H       ; Test for a off to on transition by the sensor
+
+    btfss   STATUS,Z        ; Check outcome of test, skip if success ...
+    goto    SensorNotL2H    ; ... else sensor not in correspondance
 
     incfsz  detAcc,W        ; Increment detection correspondance accumulator
     movwf   detAcc          ; If result is not zero update the accumulator
-    goto    TurnOffEmitter
+    return
 
-SensorNotOn
+SensorNotL2H
 
     decfsz  detAcc,W        ; Decrement detection correspondance accumulator
     movwf   detAcc          ; If result is not zero update the accumulator
-
-TurnOffEmitter
-
-    bsf     EMITTERPORT,EMITTERBIT  ; Turn emitter off
     return
 
 EmitterIsOff
-    ; Test if sensor is off (in correspondance), then turn emitter on
+    ; Toggle the present emitter state
+    bcf     EMITTERPORT,EMITTERBIT  ; Turn emitter on
 
-    btfsc   SENSORPORT,SENSORBIT    ; Test current state of sensor ...
-    goto    SensorNotOff            ; ... jump if on, else ...
+    ; Test for sensor transition from on to off,
+    ; indicating presence of a reflective target
 
-SensorIsOff
+    movf    sensorStore,W   ; Get the stored sensor states
+    andlw   SENSORMASK      ; Isolate the two most recent states
+    xorlw   SENSORH2L       ; Test for a on to off transition by the sensor
+
+    btfss   STATUS,Z        ; Check outcome of test, skip if success ...
+    goto    SensorNotH2L    ; ... else sensor not in correspondance
 
     incfsz  detAcc,W        ; Increment detection correspondance accumulator
     movwf   detAcc          ; If result is not zero update the accumulator
-    goto    TurnOnEmitter
+    return
 
-SensorNotOff
+SensorNotH2L
 
     decfsz  detAcc,W        ; Decrement detection correspondance accumulator
     movwf   detAcc          ; If result is not zero update the accumulator
-
-TurnOnEmitter
-
-    bcf     EMITTERPORT,EMITTERBIT  ; Turn emitter on
     return
 
 
@@ -420,7 +450,7 @@ UserMain    ; Top of main processing loop
 
     ; Check status of detection indicator
 
-    btfss   INDICATORPORT,INDICATORBIT  ; Test state of detection indicator ...
+    btfsc   INDICATORPORT,INDICATORBIT  ; Test state of detection indicator ...
     goto    IndicatorIsOff              ; ... jump if off, else ...
 
     ; Detection indicator is currently on
