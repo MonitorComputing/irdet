@@ -11,7 +11,7 @@
 ;                                                                     *
 ;**********************************************************************
 ;                                                                     *
-;    Copyright (c)  20054 Monitor Computing Services Ltd               *
+;    Copyright (c)  2005 Monitor Computing Services Ltd               *
 ;    Unpublished and not for publication                              *
 ;    All rights reserved                                              *
 ;                                                                     *
@@ -284,7 +284,7 @@ EndISR
 EMITTERPORT     EQU     PORTA       ; Emitter drive port
 EMITTERBIT      EQU     2           ; Emmitter drive bit (active low)
 SENSORPORT      EQU     PORTA       ; Sensor input port
-SENSORBIT       EQU     3           ; Sensor input bit
+SENSORBIT       EQU     3           ; Sensor input bit (active high)
 INDICATORPORT   EQU     PORTA       ; Detection indicator port
 INDICATORBIT    EQU     4           ; Detection indicator bit (active low)
 
@@ -402,7 +402,7 @@ EmitterIsOn
 
     movf    sensorStore,W   ; Get the stored sensor states
     andlw   SENSORMASK      ; Isolate the two most recent states
-    xorlw   SENSORL2H       ; Test for a off to on transition by the sensor
+    xorlw   SENSORL2H       ; Test for an off to on transition by the sensor
 
     btfss   STATUS,Z        ; Check outcome of test, skip if success ...
     goto    SensorNotL2H    ; ... else sensor not in correspondance
