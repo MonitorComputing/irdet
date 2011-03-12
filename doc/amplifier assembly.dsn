@@ -319,7 +319,7 @@ download a copy.-->
 				</POLYGON>
 			</TinyCAD>
 		</SYMBOLDEF>
-		<SYMBOLDEF id='7'>
+		<SYMBOLDEF id='6'>
 			<NAME type='0'>TEFT4300</NAME>
 			<REF type='0'>Q?</REF>
 			<DESCRIPTION>Phototransistor NPN</DESCRIPTION>
@@ -421,105 +421,105 @@ download a copy.-->
 			<COLOR_BACKGROUND>FFFFFF</COLOR_BACKGROUND>
 		</OPTIONS>
 		<SYMBOL id='1' pos='114.00000,84.00000' part='0' rotate='0' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='U1' show='0' pos='1.00000,-7.60000'/>
+			<FIELD type='0' description='Ref' value='U1' show='1' pos='1.00000,-7.60000'/>
 			<FIELD type='0' description='Name' value='LM358' show='1' pos='1.00000,-10.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='DIP8' show='0' pos='1.00000,-5.20000'/>
 		</SYMBOL>
 		<SYMBOL id='1' pos='172.00000,84.00000' part='1' rotate='0' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='U1' show='0' pos='1.00000,-7.60000'/>
+			<FIELD type='0' description='Ref' value='U1' show='1' pos='1.00000,-7.60000'/>
 			<FIELD type='0' description='Name' value='LM358' show='1' pos='1.00000,-10.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='DIP8' show='0' pos='1.00000,-5.20000'/>
 		</SYMBOL>
 		<SYMBOL id='2' pos='76.00000,74.00000' part='0' rotate='0' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='R5' show='0' pos='1.00000,-5.60000'/>
+			<FIELD type='0' description='Ref' value='R5' show='1' pos='1.00000,-5.60000'/>
 			<FIELD type='0' description='Name' value='1K' show='1' pos='1.00000,-8.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='MFR4' show='0' pos='1.00000,-3.20000'/>
 		</SYMBOL>
 		<SYMBOL id='2' pos='76.00000,60.00000' part='0' rotate='0' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='R4' show='0' pos='1.00000,-5.60000'/>
+			<FIELD type='0' description='Ref' value='R4' show='1' pos='1.00000,-5.60000'/>
 			<FIELD type='0' description='Name' value='1K' show='1' pos='1.00000,-8.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='MFR4' show='0' pos='1.00000,-3.20000'/>
 		</SYMBOL>
 		<SYMBOL id='2' pos='112.00000,62.00000' part='0' rotate='2' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='R6' show='0' pos='-10.00000,2.00000'/>
+			<FIELD type='0' description='Ref' value='R6' show='1' pos='-10.00000,2.00000'/>
 			<FIELD type='0' description='Name' value='3K83' show='1' pos='-10.00000,-4.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='MFR4' show='0' pos='-10.00000,4.40000'/>
 		</SYMBOL>
 		<SYMBOL id='2' pos='148.00000,80.00000' part='0' rotate='2' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='R7' show='0' pos='-10.00000,2.00000'/>
+			<FIELD type='0' description='Ref' value='R7' show='1' pos='-10.00000,2.00000'/>
 			<FIELD type='0' description='Name' value='511' show='1' pos='-10.00000,-4.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='MRS25' show='0' pos='-10.00000,4.40000'/>
 		</SYMBOL>
 		<SYMBOL id='2' pos='168.00000,70.00000' part='0' rotate='2' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='R8' show='0' pos='-10.00000,2.00000'/>
+			<FIELD type='0' description='Ref' value='R8' show='1' pos='-10.00000,2.00000'/>
 			<FIELD type='0' description='Name' value='61K9' show='1' pos='-10.00000,-4.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='MFR4' show='0' pos='-10.00000,4.40000'/>
 		</SYMBOL>
 		<SYMBOL id='2' pos='64.00000,96.00000' part='0' rotate='0' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='R2' show='0' pos='1.00000,-5.60000'/>
+			<FIELD type='0' description='Ref' value='R2' show='1' pos='1.00000,-5.60000'/>
 			<FIELD type='0' description='Name' value='100K' show='1' pos='1.00000,-8.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='MFR4' show='0' pos='1.00000,-3.20000'/>
 		</SYMBOL>
 		<SYMBOL id='2' pos='64.00000,110.00000' part='0' rotate='0' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='R3' show='0' pos='1.00000,-5.60000'/>
+			<FIELD type='0' description='Ref' value='R3' show='1' pos='1.00000,-5.60000'/>
 			<FIELD type='0' description='Name' value='100K' show='1' pos='1.00000,-8.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='MFR4' show='0' pos='1.00000,-3.20000'/>
 		</SYMBOL>
 		<SYMBOL id='3' pos='86.00000,66.00000' part='0' rotate='0' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='C1' show='0' pos='1.00000,-3.60000'/>
+			<FIELD type='0' description='Ref' value='C1' show='1' pos='1.00000,-3.60000'/>
 			<FIELD type='0' description='Name' value='330nF' show='1' pos='1.00000,-6.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='package name for PCB layout' show='0' pos='1.00000,-1.20000'/>
 		</SYMBOL>
 		<SYMBOL id='3' pos='138.00000,80.00000' part='0' rotate='2' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='C2' show='0' pos='-8.00000,2.00000'/>
+			<FIELD type='0' description='Ref' value='C2' show='1' pos='-8.00000,2.00000'/>
 			<FIELD type='0' description='Name' value='330nF' show='1' pos='-8.00000,-4.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='package name for PCB layout' show='0' pos='-8.00000,4.40000'/>
 		</SYMBOL>
 		<SYMBOL id='4' pos='58.00000,46.00000' part='0' rotate='1' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='D1' show='0' pos='1.00000,-9.60000'/>
+			<FIELD type='0' description='Ref' value='D1' show='1' pos='1.00000,-9.60000'/>
 			<FIELD type='0' description='Name' value='TSAL4400' show='1' pos='1.00000,-12.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='T1' show='0' pos='1.00000,-7.20000'/>
 		</SYMBOL>
 		<SYMBOL id='5' pos='58.00000,28.00000' part='0' rotate='0' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='Q1' show='0' pos='1.00000,-7.60000'/>
+			<FIELD type='0' description='Ref' value='Q1' show='1' pos='1.00000,-7.60000'/>
 			<FIELD type='0' description='Name' value='BS250' show='1' pos='1.00000,-10.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='TO92' show='0' pos='1.00000,-5.20000'/>
 		</SYMBOL>
 		<SYMBOL id='2' pos='44.00000,26.00000' part='0' rotate='2' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='R1' show='0' pos='-10.00000,2.00000'/>
+			<FIELD type='0' description='Ref' value='R1' show='1' pos='-10.00000,2.00000'/>
 			<FIELD type='0' description='Name' value='100' show='1' pos='-10.00000,-4.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='1' description='Package' value='MFR4' show='0' pos='-10.00000,4.40000'/>
 		</SYMBOL>
-		<SYMBOL id='7' pos='82.00000,46.00000' part='0' rotate='0' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
-			<FIELD type='0' description='Ref' value='Q2' show='0' pos='1.00000,-7.60000'/>
+		<SYMBOL id='6' pos='82.00000,46.00000' part='0' rotate='0' can_scale='0' show_power='0' scale_x='1.00000' scale_y='1.00000'>
+			<FIELD type='0' description='Ref' value='Q2' show='1' pos='1.00000,-7.60000'/>
 			<FIELD type='0' description='Name' value='TEFT4300' show='1' pos='1.00000,-10.00000'/>
 			<FIELD type='2' description='$$SPICE_PROLOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
 			<FIELD type='2' description='$$SPICE_EPILOG_PRIORITY' value='5' show='0' pos='0.00000,0.00000'/>
