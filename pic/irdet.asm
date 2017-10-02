@@ -1,6 +1,3 @@
-; $RCSfile$ $Revision$
-; $Date$
-
 ;**********************************************************************
 ;                                                                     *
 ;    Description:   'IrDetector' Microchip PIC assembler model        *
