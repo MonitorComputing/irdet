@@ -1,0 +1,70 @@
+--- In merg@yahoogroups.com, Howard Amos <amos@c...> wrote:
+"Chris White " wrote:
+
+> 
+> --- In merg@yahoogroups.com, Howard Amos <amos@c...> wrote:
+> ...
+
+> > Try using a second op-amp to adjust the +ve feed to the photodiode in
+> > such a manner as to keep the average level to the first op-amp around
+> > Vcc/2. This means that as ambient light rises the diode feed
+
+> 
+> It happens the op-amp I'm using is in a dual package, I'd been
+> using the second amp for a second receiver but could try out your
+> suggestion.
+> 
+> Refering once more to my lack of knowledge in the hardware arena I
+> assume all that's needed is a voltage divider to the '+' input of the
+> second amp.  The '-' input of this is connected via a resistor to the
+> output of the receiver amplifier with a capacitor taken from here to
+> ground, this giving a simple RC smoothing as this input doesn't want
+> to be seeing the 4KHz signal.  The output of this second op-amp then
+> simply provides the +ve supply to the receiver photodiode.
+> 
+> Now the crunch question, what sort of value for the new resistor
+> and capacitor should I be looking at, i.e. how much smoothing?
+
+
+You are trying to keep some level of INPUT to the main op-amp, so my
+first trial circuit would be:
+
+Change existing circuit:
+1. Move capacitor between diode and ground to be between diode and
+amplifier (make op-amp input ac-coupled).
+2. Add load resistor between diode/capacitor and ground - to allow some
+current to flow through the diode. You'll need to experiment with this
+value but you could start with 10K (wild guess). A better method might
+be to setup a rig of a transmitting diode on continuous DC (no 4KHz),
+with some rolling stock positioned for normal detection, with diode
+connected directly to 5V set the diode-ground resistor so that it has
+3.5 - 4V across it.
+3. Connect R/C network to above resistor. try 220K, 0.1uF. This should
+give average voltage across the load resistor.
+4. Output of R/C goes to amp2:-ve input, +ve goes to Vcc/2 (or maybe
+Vcc/3)
+5. amp2 output connects to +ve end of diode.
+
+Effect is:
+Ambient light (whether rolling stock is present or not) makes the diode
+conduct by some amount. This generates a voltage across the load
+resistor.
+Naturally any 4KHz component is superimposed upon this ambient voltage
+level. The R/C network extracts the steady ambient light voltage level.
+amp2 adjusts the supply voltage to the diode to attempt to make this
+ambient voltage level always equal to Vcc/2 (or Vcc/3 - whatever you set
+your -ve input to). This increases the chances that the load resistor
+has some voltage (not 0 or 5!) across it for all conditions where
+detection is required. It doesn't matter if the load resistor has 0v
+across it in abolute darkness with no rolling stock to detect, or if it
+has close to 5V with direct sunlight on the diode, but all sensible
+levels of light should not cause the diode to be saturated.
+Any reflected 4KHz IR should now always create a superimposed 4KHz
+signal on the load resistor - to be amplified and detected as intended.
+
+I trust this helps,
+
+Howard Amos
+
+
+

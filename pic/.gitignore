@@ -1,0 +1,11 @@
+*.err
+*.lst
+*.ERR
+*.LST
+**/.map
+**/build/
+**/default/
+**/dist/
+**/nbproject/private/
+**/nbproject/Makefile*
+**/nbproject/Package*

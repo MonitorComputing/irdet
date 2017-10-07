@@ -29,9 +29,9 @@
 ; Include and configuration directives                                *
 ;**********************************************************************
 
-    list      p=16C84
+    list      p=16f84
 
-#include <p16C84.inc>
+#include <p16f84.inc>
 
     __CONFIG   _CP_OFF & _WDT_OFF & _PWRTE_ON & _XT_OSC
 
@@ -40,7 +40,7 @@
 ; See respective data sheet for additional information on configuration word.
 
 ; Include serial interface macros
-#include <\dev\projects\utility\pic\asyn_srl.inc>
+#include "utility/asyn_srl.inc"
 
 
 ;**********************************************************************
@@ -185,7 +185,7 @@ SerMTx      SerialTx srlIfStat, TXMFLAG, serMTxByt
 #define MONUSERON       ; Run user code immediately when booted
 
 ; Include Monitor macros
-#include <\dev\projects\utility\pic\monitor.inc>
+#include "utility/monitor.inc"
 
 
 ;**********************************************************************

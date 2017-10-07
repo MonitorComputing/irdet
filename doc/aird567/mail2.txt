@@ -1,0 +1,29 @@
+--- In merg@yahoogroups.com, "hardy71uk <cstanforth@b...>"
+<cstanforth@b...> wrote:
+At a quick glance .I would  agree with Howards suggestion .You would 
+maybe also need a bias resistor (say 100K ) from diode anode to 
+ground.There are methods of cancelling the effect of strong light.It 
+is discussed in "Electronics World" of May and November 1994.I will 
+look it up .
+You could try the diode (pointing the same way ) connected anode to 
+ground and bias from cathode to plus 5.This would also invert the 
+phase avoiding the need for your inversion FET.--- In 
+merg@yahoogroups.com, "Chris White <whitecf@b...>" <whitecf@b...> wrote:
+
+> --- In merg@yahoogroups.com, Howard Amos <amos@c...> wrote:
+> ...
+
+> > 1. Move capacitor between diode and ground to be between diode and
+> > amplifier (make op-amp input ac-coupled).
+
+> 
+> I have some vague recollection of having done this originally and
+> things didn't work too well.  Also after posting the file I was
+> looking at my diagram and couldn't work out why I actually had the
+> capacitor between the diode and ground in the first place? :-)
+> 
+> Out of curiosity would Matthij's original circuit been prone to the
+> same saturation problems or is it something to do with the changes
+> I've made?
+
+
