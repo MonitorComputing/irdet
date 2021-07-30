@@ -8,7 +8,7 @@
 ;                                                                     *
 ;**********************************************************************
 ;                                                                     *
-;    Copyright (c)  2005 Monitor Computing Services Ltd               *
+;    Copyright (c)  2021 Monitor Computing Services Ltd               *
 ;    Unpublished and not for publication                              *
 ;    All rights reserved                                              *
 ;                                                                     *
@@ -22,6 +22,18 @@
 ;           'Up' interface, asynchronous serial @ 4K8 baud            *
 ;           Port B 0 - Rx, 1 - Tx                                     *
 ;                                                                     *
+;                            +---+ +---+                              *
+;            !Emitter  <- RA2|1  |_| 18|RA1                           *
+;               Sensor -> RA3|2      17|RA0                           *
+;            !Detecting < RA4|3      16|                              *
+;                            |4      15|                              *
+;                            |5      14|                              *
+;                   Rx -> RB0|6      13|RB7                           *
+;                   Tx <- RB1|7      12|RB6                           *
+;                         RB2|8      11|RB5                           *
+;                         RB3|9      10|RB4                           *
+;                            +---------+                              *
+;                                                                     *
 ;**********************************************************************
 
 
@@ -29,7 +41,7 @@
 ; Include and configuration directives                                *
 ;**********************************************************************
 
-    list      p=16f84
+    list      r=dec,p=16f84
 
 #include <p16f84.inc>
 
@@ -64,10 +76,20 @@ INT5KBIT    EQU     2           ; Interrupts per serial bit
 INT5KINI    EQU     3           ; Interrupts per initial Rx serial bit
 
 ; Monitor interface constants
+;  Serial I/F status flags
+;   bit 0 - Rx buffer full
+;   bit 1 - Rx error
+;   bit 2 - Received break
+;   bit 3 - Seeking stop bit
+;   bit 4 - Tx buffer clear
+;   bit 5 - Sending break
 RXMFLAG     EQU     0           ; Receive byte buffer 'loaded' status bit
 RXMERR      EQU     1           ; Receive error status bit
 RXMBREAK    EQU     2           ; Received 'break' status bit
-TXMFLAG     EQU     3           ; Transmit byte buffer 'clear' status bit
+RXMSTOP     EQU     3           ; Seeking stop bit
+TXMFLAG     EQU     4           ; Transmit byte buffer 'clear' status bit
+TXMBREAK    EQU     5           ; Send 'break' status bit
+
 TXMTRIS     EQU     TRISB       ; Tx port direction register
 TXMPORT     EQU     PORTB       ; Tx port data register
 TXMBIT      EQU     1           ; Tx output bit
@@ -150,30 +172,30 @@ EnableMRx   EnableRx  RXMTRIS, RXMPORT, RXMBIT
     return
 
 
-InitMRx     InitRx  serMRxTmr, srlIfStat, RXMFLAG, RXMERR, RXMBREAK
+InitMRx     InitRx  srlIfStat, serMRxTmr, serMRxBitCnt, serMRxReg, RXMFLAG, RXMERR, RXMBREAK, RXMSTOP
     return
 
 
-SrvcMRx     ServiceRx serMRxTmr, RXMPORT, RXMBIT, serMRxBitCnt, INT5KINI, srlIfStat, RXMERR, RXMBREAK, serMRxReg, serMRxByt, RXMFLAG, INT5KBIT
+SrvcMRx     ServiceRx  srlIfStat, serMRxTmr, serMRxBitCnt, serMRxReg, serMRxByt, RXMPORT, RXMBIT, INT5KINI, INT5KBIT, RXMERR, RXMBREAK, RXMSTOP, RXMFLAG
 
 
 EnableMTx   EnableTx  TXMTRIS, TXMPORT, TXMBIT
     return
 
 
-InitMTx     InitTx  serMTxTmr, srlIfStat, TXMFLAG
+InitMTx     InitTx  srlIfStat, serMTxTmr, serMTxBitCnt, serMTxReg, TXMFLAG, TXMBREAK
     return
 
 
-SrvcMTx     ServiceTx serMTxTmr, srlIfStat, serMTxByt, serMTxReg, TXMFLAG, serMTxBitCnt, INT5KBIT, TXMPORT, TXMBIT, 0, 0
+SrvcMTx     ServiceTx  srlIfStat, serMTxTmr, serMTxBitCnt, serMTxReg, serMTxByt, TXMPORT, TXMBIT, RXMPORT, RXMBIT, INT5KBIT, TXMFLAG, TXMBREAK
 
 
 LinkMRx
-SerMRx      SerialRx srlIfStat, RXMFLAG, serMRxByt
+SerMRx      SerialRx srlIfStat, serMRxByt, RXMFLAG
 
 
 LinkMTx
-SerMTx      SerialTx srlIfStat, TXMFLAG, serMTxByt
+SerMTx      SerialTx srlIfStat, serMTxByt, TXMFLAG
 
 
 ;**********************************************************************
@@ -185,6 +207,7 @@ SerMTx      SerialTx srlIfStat, TXMFLAG, serMTxByt
 #define MONUSERON       ; Run user code immediately when booted
 
 ; Include Monitor macros
+#include "utility/eeprom.inc"
 #include "utility/monitor.inc"
 
 
@@ -218,8 +241,6 @@ Boot
     movwf   PORTA           ; ... being used for input
 
     ; Initialise Monitor terminal serial link
-    SerInit    srlIfStat, serMTxTmr, serMTxReg, serMTxByt, serMTxBitCnt, serMRxTmr, serMRxReg, serMRxByt, serMRxBitCnt
-
     call    EnableMRx       ; Enable receive from Monitor terminal
     call    InitMRx         ; Initialise receiver for Monitor terminal
     call    EnableMTx       ; Enable transmit to Monitor terminal
@@ -228,7 +249,7 @@ Boot
     call    UserInit        ; Run user initialisation code
 
     ; Initialise interrupts
-    movlw   RTCCINT
+    movlw   low RTCCINT
     movwf   TMR0            ; Initialise RTCC for timer interrupts
     clrf    INTCON          ; Disable all interrupt sources
     bsf     INTCON,T0IE     ; Enable RTCC interrupts
@@ -248,7 +269,7 @@ BeginISR
 
     ; Re-enable the timer interrupt and reload the timer
     bcf     INTCON,T0IF     ; Reset the RTCC Interrupt bit
-    movlw   RTCCINT
+    movlw   low RTCCINT
     addwf   TMR0,F          ; Reload RTCC
 
     call    SrvcMRx         ; Perform Monitor interface Rx service
@@ -463,7 +484,7 @@ UserMain    ; Top of main processing loop
 IndicatorIsOff
     ; Detection indicator is currently off
     movf    detAcc,W        ; Test if detection correspondance accumulator ...
-    sublw   DETHIGHWTR      ; ... is above "On" threshold
+    sublw   low DETHIGHWTR  ; ... is above "On" threshold
     btfsc   STATUS,C        ; Skip if above threshold ...
     goto    EndDetection    ; ... else do nothing
 
