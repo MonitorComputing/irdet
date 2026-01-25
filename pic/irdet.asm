@@ -52,7 +52,7 @@
 ; See respective data sheet for additional information on configuration word.
 
 ; Include serial interface macros
-#include "utility/asyn_srl.inc"
+#include "utility_pic/asyn_srl.inc"
 
 
 ;**********************************************************************
@@ -207,8 +207,8 @@ SerMTx      SerialTx srlIfStat, serMTxByt, TXMFLAG
 #define MONUSERON       ; Run user code immediately when booted
 
 ; Include Monitor macros
-#include "utility/eeprom.inc"
-#include "utility/monitor.inc"
+#include "utility_pic/eeprom.inc"
+#include "utility_pic/monitor.inc"
 
 
 ;**********************************************************************
@@ -359,7 +359,7 @@ UserBanner
     call    TxLoop
     movlw   'r'
     call    TxLoop
-    movlw   ' ' 
+    movlw   ' '
     call    TxLoop
     movlw   '1'
     call    TxLoop
