@@ -1,5 +1,5 @@
 # Overview
-Microchip PIC microcontrollers High frequency pulsed Infra-Red reflective train detector utilising PIC monitor interface via full duplex serial
+Microchip PIC microcontrollers High frequency pulsed Infra-Red reflective train detector utilising PIC monitor interface via full duplex serial link.
 
 Written in Microchip MPASM assembly languge and built as MPLABX projects.
 
