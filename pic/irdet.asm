@@ -1,16 +1,17 @@
 ;**********************************************************************
 ;                                                                     *
-;    Description:   'IrDetector' Microchip PIC assembler model        *
-;                   railway Infra-Red train detector.                 *
+; Description: 'IrDetector' Microchip PIC assembler model railway     *
+;              Infra-Red train detector.                              *
 ;                                                                     *
-;    Author:        Chris White (whitecf@bcs.org.uk)                  *
-;    Company:       Monitor Computing Services Ltd.                   *
+; Author: Chris White (whitecf69@gmail.com)                           *
 ;                                                                     *
-;**********************************************************************
+; Copyright (C) 2021 by Monitor Computing Services Limited, licensed  *
+; under CC BY-NC-SA 4.0. To view a copy of this license, visit        *
+; https://creativecommons.org/licenses/by-nc-sa/4.0/                  *
 ;                                                                     *
-;    Copyright (c)  2021 Monitor Computing Services Ltd               *
-;    Unpublished and not for publication                              *
-;    All rights reserved                                              *
+; This program is distributed in the hope that it will be useful, but *
+; WITHOUT ANY WARRANTY; without even the implied warranty of          *
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                *
 ;                                                                     *
 ;**********************************************************************
 ;                                                                     *
@@ -41,7 +42,7 @@
 ; Include and configuration directives                                *
 ;**********************************************************************
 
-    list      r=dec,p=16f84
+    list      p=16f84
 
 #include <p16f84.inc>
 
